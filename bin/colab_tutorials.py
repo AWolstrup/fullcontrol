@@ -17,7 +17,9 @@ notebook_names = ["contents.ipynb",
                   "lab_four_axis_demo.ipynb",
                   "lab_five_axis_demo.ipynb",
                   "lab_stl_output.ipynb",
-                  "lab_3mf_output.ipynb"]
+                  "lab_3mf_output.ipynb",
+                  "lab_infaxis_4_demo.ipynb",
+                  "lab_infaxis_5_demo.ipynb",]
 
 notebook_addresses = ["../tutorials/" +
                       notebook_name for notebook_name in notebook_names]
@@ -34,6 +36,8 @@ old_import_5ax = "import lab.fullcontrol.fiveaxis as fc5"
 new_import_5ax = "if 'google.colab' in str(get_ipython()):\\n  !pip install git+https://github.com/FullControlXYZ/fullcontrol --quiet\\n" + old_import_5ax
 old_import_5ax2 = "import lab.fullcontrol.fiveaxisC0B1 as fc5"
 new_import_5ax2 = "if 'google.colab' in str(get_ipython()):\\n  !pip install git+https://github.com/FullControlXYZ/fullcontrol --quiet\\n" + old_import_5ax2
+old_import_infaxis = "import lab.fullcontrol.infaxis as fci"
+new_import_infaxis = "if 'google.colab' in str(get_ipython()):\\n  !pip install git+https://github.com/FullControlXYZ/fullcontrol --quiet\\n" + old_import_infaxis
 
 string_to_delete = 'links will work in vscode, jupyter lab, etc. - the notebooks can also be accessed [online](https://github.com/FullControlXYZ/fullcontrol/tree/master/tutorials) and run in google colab'
 
@@ -53,6 +57,10 @@ for notebook_address in notebook_addresses:
     elif 'lab_five_axis_demo.ipynb' in notebook_address:
         content_string = content_string.replace(old_import_5ax, new_import_5ax)
         content_string = content_string.replace(old_import_5ax2, new_import_5ax2)
+    elif 'lab_infaxis_4_demo.ipynb' in notebook_address:
+        content_string = content_string.replace(old_import_infaxis, new_import_infaxis)
+    elif 'lab_infaxis_5_demo.ipynb' in notebook_address:
+        content_string = content_string.replace(old_import_infaxis, new_import_infaxis)
     else:
         content_string = content_string.replace(old_import, new_import)
 
