@@ -2,8 +2,8 @@
 import os
 from datetime import datetime
 
-from infaxis.state import State
-from infaxis.controls import GcodeControls
+from lab.fullcontrol.infinaxis.state import State
+from lab.fullcontrol.infinaxis.controls import GcodeControls
 
 
 def gcode(steps: list, gcode_controls: GcodeControls = GcodeControls()):

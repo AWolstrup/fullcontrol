@@ -3,11 +3,10 @@ from pydantic import BaseModel
 from importlib import import_module
 
 from fullcontrol.gcode.extrusion_classes import ExtrusionGeometry, Extruder
-from fullcontrol.gcode.controls import GcodeControls
 
-from infaxis.point import Point
-from infaxis.printer import Printer
-from infaxis.controls import GcodeControls
+from lab.fullcontrol.infinaxis.point import Point
+from lab.fullcontrol.infinaxis.printer import Printer
+from lab.fullcontrol.infinaxis.controls import GcodeControls
 
 
 class State(BaseModel):
@@ -32,18 +31,18 @@ class State(BaseModel):
         super().__init__()
         # initialize state based on the named-printer default initialization_data and initialization_data over-rides passed by designer in gcode_controls
 
-        def first_infaxis_point(steps: list, fully_defined: bool = True) -> Point:
+        def first_infinaxis_point(steps: list, fully_defined: bool = True) -> Point:
             'return first Point in list. if the parameter fully_defined is true, return first Point with x,y,z'
             if type(steps).__name__ == 'list':
                 for i in range(len(steps)):
-                    if type(steps[i]).__name__ == 'Point':
+                    if isinstance(steps[i], Point):
                         if fully_defined:
                             if steps[i].x != None and steps[i].y != None and steps[i].z != None:
                                 return steps[i]
                         else:
                             return steps[i]
             if fully_defined:
-                raise Exception(f'No point found in steps with all five axis defined')
+                raise Exception(f'No point found in steps with fully defined x, y, and z')
             if not fully_defined:
                 raise Exception(f'No point found in steps')
 
@@ -96,6 +95,6 @@ class State(BaseModel):
         # primer_steps = import_module(f'fullcontrol.gcode.primer_library.travel').primer(first_XYZBC_point(steps))
         primer_steps = []
         primer_steps.append(Extruder(on=False))
-        primer_steps.append(first_infaxis_point(steps))  # move fast to start position
+        primer_steps.append(first_infinaxis_point(steps))  # move fast to start position
         primer_steps.append(Extruder(on=True))
         self.steps = initialization_data['starting_procedure_steps'] + primer_steps + steps + initialization_data['ending_procedure_steps']

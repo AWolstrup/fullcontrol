@@ -3,12 +3,61 @@ from fullcontrol import Point as BasePoint
 from copy import deepcopy
 import numpy as np
 
-from infaxis.axis import Axis
+from lab.fullcontrol.infinaxis.axis import Axis
+
+
+def _model_field_names(model_class):
+    return set(model_class.model_fields if hasattr(model_class, "model_fields") else model_class.__fields__)
+
+
+def _axis_names(head_chain=None, bed_chain=None):
+    axes = list(head_chain or []) + list(bed_chain or [])
+    return {axis.name for axis in axes if axis.name is not None}
+
+
+def configure_point(head_chain=None, bed_chain=None):
+    """Return a Point class whose extra constructor fields map to configured axes."""
+    axis_name_lookup = {name.lower(): name for name in _axis_names(head_chain, bed_chain)}
+
+    class ConfiguredPoint(Point):
+        # Keep axes as the storage model. This class is only a user-facing
+        # convenience so designs can write Point(x=..., b=...) and point.b.
+        def __init__(self, **data):
+            fields = _model_field_names(type(self))
+            field_lookup = {name.lower(): name for name in fields}
+            axes = dict(data.pop("axes", None) or {})
+            for name in list(data):
+                if name not in fields and name.lower() in field_lookup:
+                    data[field_lookup[name.lower()]] = data.pop(name)
+                elif name.lower() in axis_name_lookup and name not in fields:
+                    axes[axis_name_lookup[name.lower()]] = data.pop(name)
+            if axes:
+                data["axes"] = axes
+            super().__init__(**data)
+
+        def __getattr__(self, name):
+            axes = getattr(self, "axes", None)
+            axis_name = axis_name_lookup.get(name.lower())
+            if axes is not None and axis_name in axes:
+                return axes[axis_name]
+            raise AttributeError(name)
+
+        def __setattr__(self, name, value):
+            axis_name = axis_name_lookup.get(name.lower())
+            if axis_name is not None and name not in _model_field_names(type(self)):
+                axes = dict(getattr(self, "axes", None) or {})
+                axes[axis_name] = value
+                super().__setattr__("axes", axes)
+            else:
+                super().__setattr__(name, value)
+
+    return ConfiguredPoint
+
 
 class Point(BasePoint):
     axes: Optional[dict] = None # dictionary for assigning chages to the printer Axis based on the info in the point
 
-    def infaxis_gcode(self, self_systemXYZ,state) -> float:
+    def infinaxis_gcode(self, self_systemXYZ,state) -> float:
         'generate XYZABC gcode string to move from a point p to this point. return XYZABC string'
         p = state.point_systemXYZ
         s = ''
@@ -89,9 +138,10 @@ class Point(BasePoint):
         model_point = deepcopy(state.point)
         model_point.update_from(self)
         # Update Axis from point
-        for axis in state.printer.head_chain + state.printer.bed_chain:
-            if axis.name in self.axes and self.axes[axis.name] != None:
-                axis.active = self.axes[axis.name]
+        if self.axes is not None:
+            for axis in state.printer.head_chain + state.printer.bed_chain:
+                if axis.name in self.axes and self.axes[axis.name] != None:
+                    axis.active = self.axes[axis.name]
 
         # inverse kinematics:
         system_point = model2system(model_point, state)
@@ -104,8 +154,8 @@ class Point(BasePoint):
     def gcode(self, state):
         'process this instance in a list of steps supplied by the designer to generate and return a line of gcode'
         self_systemXYZ, dist, dist_system = self.inverse_kinematics(state)
-        infaxis_str = self.infaxis_gcode(self_systemXYZ,state)
-        if infaxis_str != None:  # only write a line of gcode if movement occurs
+        infinaxis_str = self.infinaxis_gcode(self_systemXYZ,state)
+        if infinaxis_str != None:  # only write a line of gcode if movement occurs
             G_str = 'G1 ' if state.extruder.on else 'G0 '
             E_str = state.extruder.e_gcode(self, state)
 
@@ -125,11 +175,12 @@ class Point(BasePoint):
 
             
             state.distance_accumulated += (dist**2-dist_system**2)**0.5 if dist - dist_system > 0 else 0
+            # the following two checks for model_XYZ_gcode and distance_axis are only passed if the user flags them in GcodeControls and may be useful for give more information for motion planning
             if state.printer.model_XYZ_gcode:
-                infaxis_str = infaxis_str + f"U{round(self.x, 6):.6} V{round(self.y, 6):.6} W{round(self.z, 6):.6} "
+                infinaxis_str = infinaxis_str + f"U{round(self.x, 6):.6} V{round(self.y, 6):.6} W{round(self.z, 6):.6} "
             elif state.printer.distance_axis:
-                infaxis_str = infaxis_str + f"U{state.distance_accumulated:.3f} "
-            gcode_str = f'{G_str}{F_str}{infaxis_str}{E_str}'
+                infinaxis_str = infinaxis_str + f"U{state.distance_accumulated:.3f} "
+            gcode_str = f'{G_str}{F_str}{infinaxis_str}{E_str}'
             if state.printer.verbose:
                 gcode_str += f' ; distance: {dist:.3f}, system: {dist_system:.3f}' 
             state.printer.speed_changed = False

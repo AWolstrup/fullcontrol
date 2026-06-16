@@ -12,6 +12,9 @@ class Axis(BaseModel):
     def __init__(self, **data):
         super().__init__(**data)
 
+        if self.name is not None and self.name.upper() in ["X", "Y", "Z"]:
+            raise ValueError('Axis.name cannot be "X", "Y", or "Z"; use Axis.type for linear kinematics with a different name')
+
         if self.type is None:
             if self.name is not None and self.name in ["A", "B", "C"]:
                 self.type = self.name
