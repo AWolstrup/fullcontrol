@@ -174,7 +174,7 @@ class Point(BasePoint):
             if state.printer.f_round:
                 F_str = f'F{round(f, 0):.0f} '
             else:
-                F_str = f'F{round(f, 6):.6} '
+                F_str = f'F{round(float(f), 6):.6} '
         
 
             
