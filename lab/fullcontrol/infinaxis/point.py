@@ -164,12 +164,11 @@ class Point(BasePoint):
                     f = 1 / (dist/state.printer.print_speed)
                 else:
                     f=60 # hardcoded value, move should take 1 second... dont know what that does though
-                #F_str = f'F{round(f, 0):.0f} '
-            elif state.printer.distance_axis or state.printer.model_XYZ_gcode: #For printers with helper axis, but no inverse time feedrate
+
+            elif state.printer.distance_axis or state.printer.distance_axis_full or state.printer.model_XYZ_gcode: #For printers with helper axis, but no inverse time feedrate
                 f = state.printer.print_speed
-            else: # If the printer has no helper features.... good luck
-                #F_str = state.printer.f_gcode(state)
-                f = state.printer.print_speed * (dist_system/dist) if (dist != 0 or dist_system != 0) else state.printer.print_speed # adjust feedrate based on the ratio of model distance to system distance to help keep print speed consistent.
+            else: # If the printer has no helper features.... with rounded f this is known to cause unintended printer behaviour
+                f = state.printer.print_speed * (dist_system/dist) if (dist != 0 or dist_system != 0) else state.printer.print_speed # (F-hacking) adjust feedrate based on the ratio of model distance to system distance to help keep print speed consistent.
 
             if state.printer.f_round:
                 F_str = f'F{round(f, 0):.0f} '
