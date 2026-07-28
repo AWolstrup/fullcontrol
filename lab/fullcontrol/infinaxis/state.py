@@ -82,6 +82,7 @@ class State(BaseModel):
             post_ik_offset=post_ik_offset,
             inverse_time_feedrate=gcode_controls.inverse_time_feedrate,
             distance_axis=gcode_controls.distance_axis,
+            distance_axis_full=gcode_controls.distance_axis_full,
             model_XYZ_gcode=gcode_controls.model_XYZ_gcode,
             verbose=gcode_controls.verbose,
             f_round=gcode_controls.f_round,

@@ -11,8 +11,8 @@ class Printer(BasePrinter):
     bed_chain: list = None
     xyz_orientation: list = None
     inverse_time_feedrate: bool = None  # if true, F command will be output as inverse time feedrate (e.g. F2 for 30 seconds per move (1/2 minutes per move)) instead of speed (e.g. F300 for 300 mm/s). This is useful for some multiaxis machines that use inverse time feedrate to control speed.
-    # the following two parameters (model_XYZ_gcode and distance_axis) may be useful for give more information for motion planning
     distance_axis: bool = None
+    distance_axis_full: bool = None
     model_XYZ_gcode: bool = None
     verbose: bool = None
     f_round: bool = None

@@ -176,13 +176,16 @@ class Point(BasePoint):
             else:
                 F_str = f'F{round(float(f), 6):.6} '
         
-
-            
-            state.distance_accumulated += (dist**2-dist_system**2)**0.5 if dist - dist_system > 0 else 0
+            # If distance_axis_full is true all distance is mapped to the M virtual axis. Intended to be used with all physical motors classified as rotational (i.e. not considered for motion planning, in the firmware)
+            # if distance_axis_full is false, only the contribution from the actual physical rotational axes are mapped to M (if the model distance is longer than the system distance)
+            if state.printer.distance_axis_full:
+                state.distance_accumulated += dist
+            else:
+                state.distance_accumulated += (dist**2-dist_system**2)**0.5 if dist - dist_system > 0 else 0
             # the following two checks for model_XYZ_gcode and distance_axis are only passed if the user flags them in GcodeControls and may be useful for give more information for motion planning
             if state.printer.model_XYZ_gcode:
                 infinaxis_str = infinaxis_str + f"P{round(self.x, 6):.6} Q{round(self.y, 6):.6} R{round(self.z, 6):.6} "
-            elif state.printer.distance_axis:
+            elif state.printer.distance_axis or state.printer.distance_axis_full: # needs to happen if either distance axis case is true
                 infinaxis_str = infinaxis_str + f"M{state.distance_accumulated:.3f} "
             gcode_str = f'{G_str}{F_str}{infinaxis_str}{E_str}'
             if state.printer.verbose:
