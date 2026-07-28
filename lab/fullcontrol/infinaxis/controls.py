@@ -15,3 +15,4 @@ class GcodeControls(BaseGcodeControls):
     distance_axis: Optional[bool] = False
     model_XYZ_gcode: Optional[bool] = False  # if true, the gcode output will have a UVW axis which shows the the XYZ movement in the model (Alternative to distance_axis). Intended to be used with the system axis (XYZAC for instance) all be treated as rotational in firmware and the UVW being linear aixs for motion planning.
     verbose: Optional[bool] = False
+    f_round: Optional[bool] = True

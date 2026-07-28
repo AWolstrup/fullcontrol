@@ -15,6 +15,7 @@ class Printer(BasePrinter):
     distance_axis: bool = None
     model_XYZ_gcode: bool = None
     verbose: bool = None
+    f_round: bool = None
 
     def f_gcode(self, state):
         if self.speed_changed == True:

@@ -170,16 +170,20 @@ class Point(BasePoint):
             else: # If the printer has no helper features.... good luck
                 #F_str = state.printer.f_gcode(state)
                 f = state.printer.print_speed * (dist_system/dist) if (dist != 0 or dist_system != 0) else state.printer.print_speed # adjust feedrate based on the ratio of model distance to system distance to help keep print speed consistent.
-            F_str = f'F{round(f, 0):.0f} '    
+
+            if state.printer.f_round:
+                F_str = f'F{round(f, 0):.0f} '
+            else:
+                F_str = f'F{round(f, 6):.6} '
         
 
             
             state.distance_accumulated += (dist**2-dist_system**2)**0.5 if dist - dist_system > 0 else 0
             # the following two checks for model_XYZ_gcode and distance_axis are only passed if the user flags them in GcodeControls and may be useful for give more information for motion planning
             if state.printer.model_XYZ_gcode:
-                infinaxis_str = infinaxis_str + f"U{round(self.x, 6):.6} V{round(self.y, 6):.6} W{round(self.z, 6):.6} "
+                infinaxis_str = infinaxis_str + f"P{round(self.x, 6):.6} Q{round(self.y, 6):.6} R{round(self.z, 6):.6} "
             elif state.printer.distance_axis:
-                infinaxis_str = infinaxis_str + f"U{state.distance_accumulated:.3f} "
+                infinaxis_str = infinaxis_str + f"M{state.distance_accumulated:.3f} "
             gcode_str = f'{G_str}{F_str}{infinaxis_str}{E_str}'
             if state.printer.verbose:
                 gcode_str += f' ; distance: {dist:.3f}, system: {dist_system:.3f}' 

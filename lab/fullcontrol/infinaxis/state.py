@@ -84,6 +84,7 @@ class State(BaseModel):
             distance_axis=gcode_controls.distance_axis,
             model_XYZ_gcode=gcode_controls.model_XYZ_gcode,
             verbose=gcode_controls.verbose,
+            f_round=gcode_controls.f_round,
             speed_changed=True)
 
         self.extrusion_geometry = ExtrusionGeometry(
