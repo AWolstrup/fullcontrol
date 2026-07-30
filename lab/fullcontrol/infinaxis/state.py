@@ -83,7 +83,9 @@ class State(BaseModel):
             inverse_time_feedrate=gcode_controls.inverse_time_feedrate,
             distance_axis=gcode_controls.distance_axis,
             distance_axis_full=gcode_controls.distance_axis_full,
+            distance_axis_name=gcode_controls.distance_axis_name,
             model_XYZ_gcode=gcode_controls.model_XYZ_gcode,
+            model_XYZ_gcode_name=gcode_controls.model_XYZ_gcode_name,
             verbose=gcode_controls.verbose,
             f_round=gcode_controls.f_round,
             speed_changed=True)

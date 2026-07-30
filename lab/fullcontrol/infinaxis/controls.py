@@ -14,6 +14,8 @@ class GcodeControls(BaseGcodeControls):
     # the following three parameters (model_XYZ_gcode and distance_axis (_full)) may be useful for give more information for motion planning
     distance_axis: Optional[bool] = False
     distance_axis_full: Optional[bool] = False
+    distance_axis_name: Optional[str] = "m" #assigned drive name in firmware
     model_XYZ_gcode: Optional[bool] = False  # if true, the gcode output will have a PQR axis which shows the the XYZ movement in the model (Alternative to distance_axis). Intended to be used with the system axis (XYZAC for instance) all be treated as rotational in firmware and the UVW being linear aixs for motion planning.
+    model_XYZ_gcode_name: Optional[list[str]] = ["p","q","r"] #assigned drive names in firmware
     verbose: Optional[bool] = False
     f_round: Optional[bool] = True
