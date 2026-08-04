@@ -168,7 +168,10 @@ class Point(BasePoint):
             elif state.printer.planning_axes_mono or state.printer.planning_axes_tripple: #For printers with planning axes, but no inverse time feedrate
                 f = state.printer.print_speed
             else: # If the printer has no helper features.... with rounded f this is known to cause unintended printer behaviour
-                f = state.printer.print_speed * (dist_system/dist) if (dist != 0 or dist_system != 0) else state.printer.print_speed # (F-hacking) adjust feedrate based on the ratio of model distance to system distance to help keep print speed consistent.
+                if (dist != 0 and dist_system != 0): # (F-hacking) adjust feedrate based on the ratio of model distance to system distance to help keep print speed consistent.
+                    f = state.printer.print_speed * (dist_system/dist)  
+                else:
+                    f = state.printer.print_speed 
 
             if state.printer.f_round:
                 F_str = f'F{round(f, 0):.0f} '
