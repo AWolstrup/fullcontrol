@@ -165,7 +165,7 @@ class Point(BasePoint):
                 else:
                     f=60 # hardcoded value, move should take 1 second... dont know what that does though
 
-            elif state.printer.distance_axis or state.printer.distance_axis_full or state.printer.model_XYZ_gcode: #For printers with helper axis, but no inverse time feedrate
+            elif state.printer.planning_axes_mono or state.printer.planning_axes_tripple: #For printers with planning axes, but no inverse time feedrate
                 f = state.printer.print_speed
             else: # If the printer has no helper features.... with rounded f this is known to cause unintended printer behaviour
                 f = state.printer.print_speed * (dist_system/dist) if (dist != 0 or dist_system != 0) else state.printer.print_speed # (F-hacking) adjust feedrate based on the ratio of model distance to system distance to help keep print speed consistent.
@@ -175,18 +175,14 @@ class Point(BasePoint):
             else:
                 F_str = f'F{round(float(f), 6):.6} '
         
-            # If distance_axis_full is true all distance is mapped to the M virtual axis. Intended to be used with all physical motors classified as rotational (i.e. not considered for motion planning, in the firmware)
-            # if distance_axis_full is false, only the contribution from the actual physical rotational axes are mapped to M (if the model distance is longer than the system distance)
-            if state.printer.distance_axis_full:
+            if state.printer.planning_axes_mono or state.printer.planning_axes_tripple:
                 state.distance_accumulated += dist
-            else:
-                state.distance_accumulated += (dist**2-dist_system**2)**0.5 if dist - dist_system > 0 else 0
-            # the following two checks for model_XYZ_gcode and distance_axis are only passed if the user flags them in GcodeControls and may be useful for give more information for motion planning
-            if state.printer.model_XYZ_gcode:
-                axis_names = state.printer.model_XYZ_gcode_name
+
+            if state.printer.planning_axes_names:
+                axis_names = state.printer.planning_axes_names
                 infinaxis_str = infinaxis_str + f"{axis_names[0]}{round(self.x, 6):.6} {axis_names[1]}{round(self.y, 6):.6} {axis_names[2]}{round(self.z, 6):.6} "
-            elif state.printer.distance_axis or state.printer.distance_axis_full: # needs to happen if either distance axis case is true
-                axis_name = state.printer.distance_axis_name
+            elif state.printer.planning_axes_mono:
+                axis_name = state.printer.planning_axes_names[0]
                 infinaxis_str = infinaxis_str + f"{axis_name}{state.distance_accumulated:.3f} "
             gcode_str = f'{G_str}{F_str}{infinaxis_str}{E_str}'
             if state.printer.verbose:
