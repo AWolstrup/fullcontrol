@@ -162,8 +162,8 @@ class Point(BasePoint):
             if state.printer.inverse_time_feedrate and state.extruder.on:
                 if dist !=0:
                     f = 1 / (dist/state.printer.print_speed)
-                else:
-                    f=60 # hardcoded value, move should take 1 second... dont know what that does though
+                else: # this case should only happen for pure orientation moves, so the print speed is used to allow the user to control it through normal fullcontrol means.
+                    f=state.printer.print_speed
 
             elif state.printer.planning_axes_mono or state.printer.planning_axes_tripple: #For printers with planning axes, but no inverse time feedrate
                 f = state.printer.print_speed
