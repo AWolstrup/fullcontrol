@@ -181,7 +181,7 @@ class Point(BasePoint):
             if state.printer.planning_axes_mono or state.printer.planning_axes_tripple:
                 state.distance_accumulated += dist
 
-            if state.printer.planning_axes_names:
+            if state.printer.planning_axes_tripple:
                 axis_names = state.printer.planning_axes_names
                 infinaxis_str = infinaxis_str + f"{axis_names[0]}{round(self.x, 6):.6} {axis_names[1]}{round(self.y, 6):.6} {axis_names[2]}{round(self.z, 6):.6} "
             elif state.printer.planning_axes_mono:
